@@ -1,4 +1,4 @@
-# Complete SQL Injection Cheatsheet
+# Complete Union SQL Injection Cheatsheet
 
 > **For educational and authorized security testing only**
 
