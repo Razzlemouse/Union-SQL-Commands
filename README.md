@@ -41,8 +41,9 @@ Copy code
 ' UNION SELECT 1,2,3,4,5,6,7-- -
 -- Observe which numbers are reflected in the response
 -- Those positions are injectable / visible
+```
 
-
+---
 
 
 ## Quick Checks
